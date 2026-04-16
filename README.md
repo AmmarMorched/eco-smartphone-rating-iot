@@ -2,62 +2,120 @@
 
 ## Overview
 
-This project is an IoT-based system designed to evaluate and display the environmental impact (eco rating) of smartphones.
+This project is an end-to-end IoT system that evaluates and displays the environmental impact (eco rating) of smartphones.
 
-It combines embedded systems, web technologies, and RFID to create an interactive experience where users can scan their phone, retrieve its eco score, and store it on a physical card.
+It combines a web API, a Raspberry Pi backend, and multiple ESP8266/ESP32 microcontrollers with RFID technology to create an interactive experience for users in a smart retail or exhibition environment.
 
-##  System Architecture
+---
 
-The system is composed of multiple components:
+## System Architecture
 
-1. **QR Code Interaction**
+### 1. Web Server (Device Detection API)
 
-   * The user scans a QR code using their smartphone
-   * A web API hosted on a Raspberry Pi detects the device model
+* A web application that detects the smartphone model when a user scans a QR code
+* Hosted online using Render
+* Uses device detection to extract phone specifications
 
-2. **Eco Rating Retrieval**
+🔗 Application URL:
+https://device-detection-51degree-api-2.onrender.com
 
-   * The system searches a database for the smartphone's eco rating
-   * The rating is sent to an ESP32 microcontroller
+> ⚠️ Deployment note:
 
-3. **Physical Display**
+* Push code to GitHub
+* Connect repository to Render
+* Add database credentials in environment variables
+* Deploy directly from Render dashboard
 
-   * A servo motor displays the eco score using a fan-shaped (0–100 scale) indicator
+---
 
-4. **RFID Storage**
+### 2. Raspberry Pi Backend
 
-   * The user taps an RFID card to store their smartphone’s eco rating
+Contains:
 
-5. **RFID Comparison**
+* **output.csv**
+  Dataset of smartphones including:
 
-   * A second ESP32 reads the card and allows comparison with other devices
+  * eco rating score
+  * durability
+  * recyclability
 
+* **send_data_to_esp.py**
+
+  * Receives detected phone model from the web server
+  * Searches for the corresponding device in `output.csv`
+  * Extracts eco rating data
+  * Connects to ESP8266 over HTTP
+  * Sends processed data to the microcontroller
+
+---
+
+### 3. ESP Receiver (ESP8266 / ESP32)
+
+Responsible for:
+
+* Receiving data from Raspberry Pi
+* Extracting the eco rating score
+* Displaying the score using a **servo motor (fan-shaped indicator from 0–100)**
+* Waiting for RFID interaction
+* Writing the following data to RFID tag:
+
+  * smartphone model
+  * eco rating score
+
+---
+
+### 4. RFID Reader System (Second ESP)
+
+* Reads data stored on RFID card
+* Extracts smartphone eco rating
+* Compares it with other devices (e.g., in a showcase environment)
+
+---
 
 ## Features
 
-* Real-time smartphone identification via QR code
-* Eco rating lookup from database
-* Embedded visualization using servo motor (fan display)
-* RFID-based data storage and retrieval
-* Multi-device communication (Raspberry Pi ↔ ESP32)
+* Smartphone detection via QR code
+* Remote API deployment (Render)
+* Data processing on Raspberry Pi
+* Real-time communication with ESP devices
+* Physical eco score visualization using servo motor
+* RFID-based storage and comparison system
+
+---
 
 ## Technologies Used
 
 * Raspberry Pi
-* ESP32 (C++ / Arduino)
-* Python / Node.js (API)
-* MongoDB
-* CSV dataset
+* ESP8266 / ESP32 (C++ / Arduino)
+* Python
+* Web API (Node.js / 51Degrees)
+* CSV dataset processing
 * RFID (RC522)
 * Servo Motor Control
 * HTTP Communication
 
+---
+
 ## Use Cases
 
-* Smart retail (compare device sustainability)
+* Smart retail product comparison
 * Environmental awareness systems
-* Interactive IoT installations
-* Embedded + AI demonstration projects
+* Interactive IoT demonstrations
+* Embedded systems + AI integration projects
+
+---
+
+## System Workflow
+
+1. User scans QR code with smartphone
+2. Web API detects device model
+3. Raspberry Pi retrieves eco rating from dataset
+4. Data is sent to ESP8266
+5. Eco score is displayed physically using servo motor
+6. User stores result on RFID card
+7. RFID card is used for comparison on another system
+
+---
 
 ## Setup
 
@@ -65,16 +123,22 @@ The system is composed of multiple components:
 git clone https://github.com/AmmarMorched/eco-smartphone-rating-iot.git
 ```
 
-(Configure Raspberry Pi server, ESP32 firmware, and RFID modules accordingly)
+### Requirements:
+
+* Raspberry Pi (Python environment)
+* ESP8266/ESP32 with Arduino setup
+* RFID module (RC522)
+* Servo motor
+* Internet connection for API
 
 ---
 
-## 📈 Future Improvements
+## Future Improvements
 
-* Mobile app integration
-* Real-time comparison dashboard
-* AI-based eco score prediction
-* Cloud-based data storage
+* Replace CSV with real-time database
+* Add web dashboard for monitoring
+* Integrate machine learning for eco score prediction
+* Improve UI/UX interaction
 
 ---
 
